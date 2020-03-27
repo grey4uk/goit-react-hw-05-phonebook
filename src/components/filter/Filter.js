@@ -1,11 +1,13 @@
 import React from "react";
+import css from './Filter.module.css';
 
 const Filter = ({ getFilteredContacts }) => {
   return (
-    <div>
-      <h2>Find contact by name</h2>
-      <input type="text" onChange={getFilteredContacts} />
-    </div>
+    <form className={css.filterForm}>
+      <label><p> Find contact by name</p>
+      <input type="text" placeholder="search..." onChange={getFilteredContacts} className={css.filterInput} />
+      </label>
+    </form>
   );
 };
 

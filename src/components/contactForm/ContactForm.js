@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { v4 as uuidv4 } from "uuid";
+import css from './ContactForm.module.css'
 
 class ContactForm extends Component {
   state = {
@@ -30,22 +31,24 @@ class ContactForm extends Component {
     const { name, number } = this.state;
     return (
       <>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit} className={css.contactForm}>
+          <div className={css.addFormInputBlock}>
           <div>
             <label>
-              Name
+             <p>Name</p>
               <input
                 placeholder="name..."
                 type="text"
                 name="name"
                 onChange={this.handleChange}
                 value={name}
+                className={css.addFormInput}
               />
             </label>
           </div>
           <div>
             <label>
-              Number
+             <p>Number</p>
               <input
                 type="tel"
                 // pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
@@ -53,11 +56,15 @@ class ContactForm extends Component {
                 name="number"
                 onChange={this.handleChange}
                 value={number}
+                className={css.addFormInput}
               />
             </label>
           </div>
+          </div>
           <div>
-            <button type="submit">ADD</button>
+            <button type="submit" className={css.addContact}>
+            <img src="https://picua.org/images/2020/03/26/9d15304ff5875b52f04c09fdae146a40.png" alt="delete" width="40" height="40" />
+            </button>
           </div>
         </form>
       </>

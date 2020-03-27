@@ -3,7 +3,18 @@ import ContactForm from "./contactForm/ContactForm";
 import ContactList from "./contactList/ContactList";
 import Filter from "./filter/Filter";
 import css from "./App.module.css";
+import ghostLogoTransition from "./transitions/ghostLogoTransition.module.css";
+import filterFormTransition from "./transitions/filterFormTransition.module.css";
+import alertMessageTransition from "./transitions/alertMessageTransition.module.css";
+
 import PropTypes from "prop-types";
+import { CSSTransition } from "react-transition-group";
+
+// import 'pnotify/dist/PNotifyBrightTheme.css';
+// import PNotify from 'pnotify/dist/es/PNotify';
+// import PNotifyButtons from 'pnotify/dist/es/PNotifyButtons';
+
+// PNotify.alert('Notice me, senpai!');
 
 class App extends Component {
   state = {
@@ -13,31 +24,42 @@ class App extends Component {
       { id: "id-3", name: "Eden Clements", number: "645-17-79" },
       { id: "id-4", name: "Annie Copeland", number: "227-91-26" }
     ],
-    filter: ""
+    filter: "",
+    isVisibleLogo: false,
+    message: ""
   };
 
-  componentDidMount(){
-    const contacts=(localStorage.getItem("contacts")!==null)?JSON.parse(localStorage.getItem("contacts")):this.state.contacts;
-    this.setState({contacts});
+  componentDidMount() {
+    const contacts =
+      localStorage.getItem("contacts") !== null
+        ? JSON.parse(localStorage.getItem("contacts"))
+        : this.state.contacts;
+    this.setState(prev => ({ contacts, isVisibleLogo: !prev.isVisibleLogo }));
   }
 
-  componentDidUpdate(){
-    localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
+  handleToggle = e => {
+    this.setState({ message: "" });
+  };
+
+  componentDidUpdate() {
+    const { contacts } = this.state;
+    localStorage.setItem("contacts", JSON.stringify(contacts));
   }
 
   submitContact = data => {
-    const isNameExist = this.state.contacts.some(
-      contact => contact.name === data.name
+    const isNumberExist = this.state.contacts.some(
+      contact => contact.number === data.number
     );
-    !isNameExist
+    !isNumberExist
       ? this.setState(prevState =>
           data.name
             ? {
-                contacts: [...prevState.contacts, data]
+                contacts: [...prevState.contacts, data],
+                message: ""
               }
-            : alert("empty name")
+            : this.setState({ message: "Empty name" })
         )
-      : alert("This name exist");
+      : this.setState({ message: "This number exist" });
   };
 
   deleteContact = e => {
@@ -55,23 +77,52 @@ class App extends Component {
 
   filterContacts = () => {
     return this.state.contacts.filter(contact =>
-      contact.name.toLowerCase().includes(this.state.filter)
+      contact.name.toLowerCase().includes(this.state.filter.toLowerCase())
     );
   };
 
   render() {
+    const { isVisibleLogo, contacts, message } = this.state;
+    const isVisibleFilter = contacts.length > 1 ? true : false;
     return (
       <div className={css.phonebook}>
+        <CSSTransition
+          in={message}
+          timeout={250}
+          classNames={alertMessageTransition}
+          unmountOnExit
+        >
+          <div className={css.alertMessage}>
+            <span>{message}</span>
+            <button
+              onClick={this.handleToggle}
+              className={css.alertClose}
+            ></button>
+          </div>
+        </CSSTransition>
         <div>
-          <h1>Phonebook</h1>
+          <CSSTransition
+            in={isVisibleLogo}
+            timeout={500}
+            classNames={ghostLogoTransition}
+            unmountOnExit
+          >
+            <h1 className={css.title}>Phonebook</h1>
+          </CSSTransition>
+
           <ContactForm submitContact={this.submitContact} />
-          {this.state.contacts.length > 2 && (
+
+          <CSSTransition
+            in={isVisibleFilter}
+            timeout={250}
+            classNames={filterFormTransition}
+            unmountOnExit
+          >
             <Filter getFilteredContacts={this.getFilteredContacts} />
-          )}
+          </CSSTransition>
         </div>
         <div>
-          <h2>Contacts</h2>
-          {this.state.contacts.length > 2 ? (
+          {isVisibleFilter ? (
             <ContactList
               contacts={this.filterContacts()}
               deleteContact={this.deleteContact}
